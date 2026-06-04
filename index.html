@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>结果</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #667085;
+      --line: #d7dce3;
+      --head: #eef3f8;
+      --accent: #1d6f8f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      line-height: 1.5;
+    }
+
+    .page {
+      width: 100%;
+      margin: 0;
+      padding: 28px 0 56px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .table-section {
+      margin: 0 0 34px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 0;
+      border-right: 0;
+      border-radius: 0;
+      overflow: hidden;
+    }
+
+    .section-title {
+      margin: 0;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0 16px 18px;
+    }
+
+    table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: 0;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th {
+      height: 52px;
+      padding: 10px 12px;
+      background: var(--head);
+      color: #223044;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    td {
+      height: 560px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .desc {
+      width: 220px;
+      min-width: 220px;
+      color: #344054;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .image-cell {
+      width: 720px;
+      min-width: 720px;
+      text-align: center;
+    }
+
+    .result-image {
+      display: block;
+      width: 692px;
+      height: 532px;
+      object-fit: contain;
+      background: #f8fafc;
+      border: 1px solid #e6e9ee;
+      border-radius: 6px;
+    }
+
+    .missing {
+      display: grid;
+      width: 692px;
+      height: 532px;
+      place-items: center;
+      background: #f8fafc;
+      border: 1px dashed #b9c2cf;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      padding: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: 100%;
+        padding-top: 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .section-title {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div id="tables"></div>
+  </main>
+
+  <script>
+    const tables = [
+      {
+        title: "表格 1：1210811",
+        headers: [" ", "真实标注", "resnet", "deeplabv3", "medsam"],
+        rows: [
+          {
+            desc: "肾间质炎",
+            images: [
+              "images/1210811/inflammation_overlay.png",
+              "images/1210811/ri.png",
+              "images/1210811/di.png",
+              "images/1210811/mi.png"
+            ]
+          },
+          {
+            desc: "其他组织",
+            images: [
+              "images/1210811/tissue_overlay.png",
+              "images/1210811/rt.png",
+              "images/1210811/dt.png",
+              "images/1210811/mt.png"
+            ]
+          }
+        ]
+      },
+      {
+        title: "表格 2：1211272",
+        headers: [" ", "真实标注", "resnet", "deeplabv3", "medsam"],
+        rows: [
+          {
+            desc: "肾间质炎",
+            images: [
+              "images/1211272/inflammation_overlay.png",
+              "images/1211272/ri.png",
+              "images/1211272/di.png",
+              "images/1211272/mi.png"
+            ]
+          },
+          {
+            desc: "其他组织",
+            images: [
+              "images/1211272/tissue_overlay.png",
+              "images/1211272/rt.png",
+              "images/1211272/dt.png",
+              "images/1211272/mt.png"
+            ]
+          }
+        ]
+      },
+      {
+        title: "表格 3：1312387",
+        headers: [" ", "真实标注", "resnet", "deeplabv3", "medsam"],
+        rows: [
+          {
+            desc: "肾间质炎",
+            images: [
+              "images/1312387/inflammation_overlay.png",
+              "images/1312387/ri.png",
+              "images/1312387/di.png",
+              "images/1312387/mi.png"
+            ]
+          },
+          {
+            desc: "其他组织",
+            images: [
+              "images/1312387/tissue_overlay.png",
+              "images/1312387/rt.png",
+              "images/1312387/dt.png",
+              "images/1312387/mt.png"
+            ]
+          }
+        ]
+      },
+      {
+        title: "表格 4：1413004",
+        headers: [" ", "真实标注", "resnet", "deeplabv3", "medsam"],
+        rows: [
+          {
+            desc: "肾间质炎",
+            images: [
+              "images/1413004/inflammation_overlay.png",
+              "images/1413004/ri.png",
+              "images/1413004/di.png",
+              "images/1413004/mi.png"
+            ]
+          },
+          {
+            desc: "其他组织",
+            images: [
+              "images/1413004/tissue_overlay.png",
+              "images/1413004/rt.png",
+              "images/1413004/dt.png",
+              "images/1413004/mt.png"
+            ]
+          }
+        ]
+      },
+      {
+        title: "表格 5：1716723",
+        headers: [" ", "真实标注", "resnet", "deeplabv3", "medsam"],
+        rows: [
+          {
+            desc: "肾间质炎",
+            images: [
+              "images/1716723/inflammation_overlay.png",
+              "images/1716723/ri.png",
+              "images/1716723/di.png",
+              "images/1716723/mi.png"
+            ]
+          },
+          {
+            desc: "其他组织",
+            images: [
+              "images/1716723/tissue_overlay.png",
+              "images/1716723/rt.png",
+              "images/1716723/dt.png",
+              "images/1716723/mt.png"
+            ]
+          }
+        ]
+      },
+    ];
+
+    function imageCell(src, alt) {
+      return `
+        <td class="image-cell">
+          <img class="result-image" src="${src}" alt="${alt}" onerror="this.replaceWith(createMissing('${src}'))" />
+        </td>
+      `;
+    }
+
+    function createMissing(src) {
+      const div = document.createElement("div");
+      div.className = "missing";
+      div.textContent = "图片未找到：" + src;
+      return div;
+    }
+
+    function renderTables() {
+      const container = document.getElementById("tables");
+      container.innerHTML = tables.map((table) => {
+        const headerHtml = table.headers.map((header, index) => {
+          const className = index === 0 ? "desc" : "image-cell";
+          return `<th class="${className}">${header}</th>`;
+        }).join("");
+
+        const rowsHtml = table.rows.map((row, rowIndex) => {
+          const imagesHtml = row.images.map((src, imageIndex) => {
+            return imageCell(src, `${table.title} 第 ${rowIndex + 1} 行图片 ${imageIndex + 1}`);
+          }).join("");
+
+          return `
+            <tr>
+              <td class="desc">${row.desc}</td>
+              ${imagesHtml}
+            </tr>
+          `;
+        }).join("");
+
+        return `
+          <section class="table-section">
+            <h2 class="section-title">${table.title}</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>${headerHtml}</tr>
+                </thead>
+                <tbody>${rowsHtml}</tbody>
+              </table>
+            </div>
+          </section>
+        `;
+      }).join("");
+    }
+
+    renderTables();
+  </script>
+</body>
+</html>
