@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>肾脏病理切片分割 — 综合报告</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #667085;
+      --line: #d7dce3;
+      --head: #eef3f8;
+      --accent: #1d6f8f;
+      --blue: #3867d6;
+      --green: #20815d;
+      --orange: #c76b18;
+      --red: #c0392b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 Arial, "Microsoft YaHei", sans-serif;
+    }
+
+    /* ── Tab bar ── */
+    .tab-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      background: var(--panel);
+      border-bottom: 2px solid var(--line);
+      box-shadow: 0 2px 8px rgba(31,41,55,0.08);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 16px 24px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color .15s, box-shadow .15s;
+      font-family: inherit;
+    }
+
+    .tab-btn:hover { color: var(--text); }
+
+    .tab-btn.active {
+      color: var(--accent);
+      box-shadow: inset 0 -3px 0 0 var(--accent);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ── Page layout ── */
+    .page { width: 100%; margin: 0; padding: 28px 0 56px; }
+    .page-header { padding: 0 20px 20px; }
+
+    h1 { margin: 0 0 8px; font-size: 28px; font-weight: 700; }
+    h2 { margin: 0; font-size: 20px; }
+    h3 { margin: 0 0 10px; font-size: 15px; }
+    h4 { margin: 0 0 10px; font-size: 14px; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 15px; }
+
+    /* ── Legend ── */
+    .legend-section {
+      position: fixed;
+      top: 70px;
+      right: 16px;
+      z-index: 50;
+      width: max-content;
+      max-width: min(300px, calc(100vw - 32px));
+      max-height: calc(100vh - 90px);
+      margin: 0;
+      padding: 12px;
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 34px rgba(31,41,55,0.18);
+    }
+
+    .legend-title { margin: 0 0 10px; font-size: 16px; font-weight: 700; }
+    .legend-groups { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .legend-group-title { margin: 0 0 8px; color: #344054; font-size: 13px; font-weight: 700; }
+
+    .color-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+    .color-item { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: center; min-height: 26px; }
+    .color-swatch {
+      width: 22px; height: 22px;
+      border: 1px solid rgba(31,41,55,0.22); border-radius: 4px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.28);
+    }
+    .color-name { display: block; font-size: 12px; font-weight: 700; color: var(--text); }
+    .color-value { display: block; color: var(--muted); font-size: 11px; }
+
+    /* ── Image tables ── */
+    .table-section {
+      margin: 0 0 34px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 0; border-right: 0;
+      overflow: hidden;
+    }
+
+    .section-title { margin: 0; padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 18px; font-weight: 700; }
+    .table-wrap { overflow-x: auto; overflow-y: hidden; padding: 0 16px 18px; }
+
+    table { width: max-content; min-width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); vertical-align: middle; }
+    th:last-child, td:last-child { border-right: 0; }
+    tr:last-child td { border-bottom: 0; }
+
+    th { height: 52px; padding: 10px 12px; background: var(--head); color: #223044; font-size: 14px; font-weight: 700; text-align: center; }
+    td { height: 520px; padding: 14px; background: #fff; }
+
+    .desc { width: 180px; min-width: 180px; color: #344054; font-size: 15px; font-weight: 700; text-align: left; }
+    .image-cell { width: 640px; min-width: 640px; text-align: center; }
+
+    .result-image, .missing { width: 612px; height: 492px; border-radius: 6px; }
+    .result-image { display: block; object-fit: contain; background: #f8fafc; border: 1px solid #e6e9ee; }
+
+    .missing {
+      display: grid; place-items: center;
+      background: #f8fafc; border: 1px dashed #b9c2cf;
+      color: var(--muted); font-size: 13px; text-align: center; padding: 12px; word-break: break-all;
+    }
+
+    /* ── Metrics panels ── */
+    .metrics-wrap { max-width: 1180px; margin: 0 auto; padding: 8px 24px 48px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; margin: 16px 0; }
+    .important { border-top: 4px solid var(--red); }
+    .panel-title { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 16px; }
+    .panel-title p { margin: 6px 0 0; color: var(--muted); }
+
+    .pill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+    .pill { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: #fafbfc; }
+    .pill span { display: block; color: var(--muted); font-size: 12px; }
+    .pill strong { display: block; margin-top: 2px; font-size: 20px; }
+    .pill.blue strong { color: var(--blue); }
+    .pill.green strong { color: var(--green); }
+    .pill.orange strong { color: var(--orange); }
+    .pill.red strong { color: var(--red); }
+
+    .bars-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr); gap: 18px; margin-top: 18px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .mini-card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+    .mini-card p { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+
+    .bar { height: 24px; position: relative; background: #edf1f7; border-radius: 5px; overflow: hidden; margin: 7px 0; }
+    .bar span { position: absolute; inset: 0 auto 0 0; opacity: .88; }
+    .bar b { position: relative; z-index: 1; display: block; padding: 2px 8px; font-size: 12px; color: #111827; }
+    .bar.blue span { background: #98b5ff; }
+    .bar.green span { background: #8fd3b2; }
+    .bar.orange span { background: #f5bd7d; }
+    .bar.red span { background: #f1a29a; }
+    .bar.purple span { background: #c5b4f2; }
+
+    .table-block { margin-top: 18px; }
+
+    .metrics-wrap table { width: 100%; min-width: auto; table-layout: auto; }
+    .metrics-wrap th, .metrics-wrap td {
+      border: none; border-bottom: 1px solid var(--line);
+      padding: 8px 8px; text-align: left; vertical-align: top; height: auto;
+    }
+    .metrics-wrap th { color: #344054; background: #f8fafc; font-size: 12px; text-align: left; }
+    .metrics-wrap td { font-variant-numeric: tabular-nums; background: transparent; }
+    .muted { color: var(--muted); }
+
+    /* ── Responsive ── */
+    @media (max-width: 760px) {
+      .tab-btn { font-size: 14px; padding: 12px 14px; }
+      .legend-section {
+        top: 62px; right: 8px; bottom: auto; left: auto; width: auto; max-height: 40vh;
+      }
+      .desc { width: 140px; min-width: 140px; }
+      .image-cell { width: 520px; min-width: 520px; }
+      .result-image, .missing { width: 492px; height: 396px; }
+      td { height: 424px; }
+      .metrics-wrap { padding: 8px 14px 36px; }
+      .panel-title, .bars-row { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Tab bar ── -->
+<nav class="tab-bar">
+  <button class="tab-btn active" data-tab="seg">分割效果</button>
+  <button class="tab-btn" data-tab="dataset">数据集情况</button>
+  <button class="tab-btn" data-tab="metrics">指标情况</button>
+</nav>
+
+<!-- ═══════════════════════ Tab 1: 分割效果 ═══════════════════════ -->
+<div class="tab-content active" id="tab-seg">
+  <main class="page">
+    <header class="page-header">
+      <h1>肾脏病理切片分割结果对比</h1>
+      <p class="subtitle">展示组织分割与炎症分割结果</p>
+    </header>
+    <section class="legend-section" aria-labelledby="legend-title">
+      <h2 class="legend-title" id="legend-title">颜色对照表</h2>
+      <div class="legend-groups" id="legend-groups"></div>
+    </section>
+    <div id="tables"></div>
+  </main>
+</div>
+
+<!-- ═══════════════════════ Tab 2: 数据集情况 ═══════════════════════ -->
+<div class="tab-content" id="tab-dataset">
+  <div class="metrics-wrap">
+    <header style="margin-bottom:22px">
+      <h1>数据集类别分布</h1>
+      <p style="color:var(--muted);margin-top:6px">统计口径：某类别在 WSI 至少一个 patch 的 mask 中出现，则该 WSI 计入该类别。</p>
+    </header>
+
+    <section class="panel">
+      <div class="table-block"><h3>train</h3>
+        <table><thead><tr><th>任务</th><th>类别</th><th>WSI 数</th><th>WSI 占比</th><th>Patch 数</th><th>像素数</th></tr></thead><tbody>
+          <tr><td>炎症分割</td><td>非炎症/background</td><td>100 / 100</td><td>100.00%</td><td>5,318</td><td>1,311,995,313</td></tr>
+          <tr><td>炎症分割</td><td>肾间质炎症</td><td>85 / 100</td><td>85.00%</td><td>1,153</td><td>16,313,346</td></tr>
+          <tr><td>组织分割</td><td>background</td><td>100 / 100</td><td>100.00%</td><td>5,301</td><td>1,067,294,334</td></tr>
+          <tr><td>组织分割</td><td>IFTA</td><td>77 / 100</td><td>77.00%</td><td>1,230</td><td>34,188,429</td></tr>
+          <tr><td>组织分割</td><td>pre-IFTA</td><td>98 / 100</td><td>98.00%</td><td>3,465</td><td>130,705,009</td></tr>
+          <tr><td>组织分割</td><td>血管外径</td><td>89 / 100</td><td>89.00%</td><td>978</td><td>2,331,817</td></tr>
+          <tr><td>组织分割</td><td>血管内径</td><td>89 / 100</td><td>89.00%</td><td>895</td><td>769,073</td></tr>
+          <tr><td>组织分割</td><td>髓质</td><td>25 / 100</td><td>25.00%</td><td>474</td><td>32,326,823</td></tr>
+          <tr><td>组织分割</td><td>包膜</td><td>88 / 100</td><td>88.00%</td><td>1,170</td><td>52,395,115</td></tr>
+          <tr><td>组织分割</td><td>无法识别成分</td><td>22 / 100</td><td>22.00%</td><td>303</td><td>8,298,059</td></tr>
+        </tbody></table>
+      </div>
+      <div class="table-block"><h3>val</h3>
+        <table><thead><tr><th>任务</th><th>类别</th><th>WSI 数</th><th>WSI 占比</th><th>Patch 数</th><th>像素数</th></tr></thead><tbody>
+          <tr><td>炎症分割</td><td>非炎症/background</td><td>24 / 24</td><td>100.00%</td><td>2,538</td><td>632,111,297</td></tr>
+          <tr><td>炎症分割</td><td>肾间质炎症</td><td>24 / 24</td><td>100.00%</td><td>491</td><td>11,292,159</td></tr>
+          <tr><td>组织分割</td><td>background</td><td>24 / 24</td><td>100.00%</td><td>2,528</td><td>494,044,772</td></tr>
+          <tr><td>组织分割</td><td>IFTA</td><td>23 / 24</td><td>95.83%</td><td>899</td><td>33,307,473</td></tr>
+          <tr><td>组织分割</td><td>pre-IFTA</td><td>24 / 24</td><td>100.00%</td><td>1,514</td><td>70,173,472</td></tr>
+          <tr><td>组织分割</td><td>血管外径</td><td>24 / 24</td><td>100.00%</td><td>451</td><td>1,044,965</td></tr>
+          <tr><td>组织分割</td><td>血管内径</td><td>24 / 24</td><td>100.00%</td><td>401</td><td>357,451</td></tr>
+          <tr><td>组织分割</td><td>髓质</td><td>4 / 24</td><td>16.67%</td><td>281</td><td>20,826,110</td></tr>
+          <tr><td>组织分割</td><td>包膜</td><td>21 / 24</td><td>87.50%</td><td>447</td><td>22,990,819</td></tr>
+          <tr><td>组织分割</td><td>无法识别成分</td><td>4 / 24</td><td>16.67%</td><td>20</td><td>658,394</td></tr>
+        </tbody></table>
+      </div>
+      <div class="table-block"><h3>test</h3>
+        <table><thead><tr><th>任务</th><th>类别</th><th>WSI 数</th><th>WSI 占比</th><th>Patch 数</th><th>像素数</th></tr></thead><tbody>
+          <tr><td>炎症分割</td><td>非炎症/background</td><td>5 / 5</td><td>100.00%</td><td>677</td><td>167,435,590</td></tr>
+          <tr><td>炎症分割</td><td>肾间质炎症</td><td>5 / 5</td><td>100.00%</td><td>157</td><td>5,163,194</td></tr>
+          <tr><td>组织分割</td><td>background</td><td>5 / 5</td><td>100.00%</td><td>675</td><td>121,489,980</td></tr>
+          <tr><td>组织分割</td><td>IFTA</td><td>3 / 5</td><td>60.00%</td><td>269</td><td>16,863,271</td></tr>
+          <tr><td>组织分割</td><td>pre-IFTA</td><td>5 / 5</td><td>100.00%</td><td>267</td><td>15,919,463</td></tr>
+          <tr><td>组织分割</td><td>血管外径</td><td>5 / 5</td><td>100.00%</td><td>92</td><td>382,302</td></tr>
+          <tr><td>组织分割</td><td>血管内径</td><td>5 / 5</td><td>100.00%</td><td>78</td><td>85,826</td></tr>
+          <tr><td>组织分割</td><td>髓质</td><td>3 / 5</td><td>60.00%</td><td>223</td><td>13,127,926</td></tr>
+          <tr><td>组织分割</td><td>包膜</td><td>5 / 5</td><td>100.00%</td><td>87</td><td>4,730,016</td></tr>
+          <tr><td>组织分割</td><td>无法识别成分</td><td>0 / 5</td><td>0.00%</td><td>0</td><td>0</td></tr>
+        </tbody></table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ═══════════════════════ Tab 3: 指标情况 ═══════════════════════ -->
+<div class="tab-content" id="tab-metrics">
+  <div class="metrics-wrap">
+    <header style="margin-bottom:22px">
+      <h1>模型指标报告</h1>
+    </header>
+
+    <!-- 炎症阳性类别 -->
+    <section class="panel important">
+      <div class="panel-title"><h2>炎症阳性类别</h2><p>背景和非炎症区域占比很大，因此这里重点展示炎症阳性类别。</p></div>
+      <div class="cards">
+        <section class="mini-card emphasis"><h4>deeplabv3 · 肾间质炎症</h4><p>分类方案：2 类 · 标注 0.81% · 预测 0.43%</p><div class="bar blue"><span style="width:42.65%"></span><b>Dice/F1 0.4265</b></div><div class="bar green"><span style="width:32.66%"></span><b>Sensitivity 0.3266</b></div><div class="bar purple"><span style="width:99.83%"></span><b>Specificity 0.9983</b></div><div class="bar orange"><span style="width:61.45%"></span><b>Precision 0.6145</b></div><div class="bar red"><span style="width:67.34%"></span><b>FNR 0.6734</b></div><div class="bar red"><span style="width:0.17%"></span><b>FPR 0.0017</b></div></section>
+        <section class="mini-card emphasis"><h4>resnet · 肾间质炎症</h4><p>分类方案：2 类 · 标注 0.81% · 预测 0.65%</p><div class="bar blue"><span style="width:43.08%"></span><b>Dice/F1 0.4308</b></div><div class="bar green"><span style="width:38.69%"></span><b>Sensitivity 0.3869</b></div><div class="bar purple"><span style="width:99.66%"></span><b>Specificity 0.9966</b></div><div class="bar orange"><span style="width:48.59%"></span><b>Precision 0.4859</b></div><div class="bar red"><span style="width:61.31%"></span><b>FNR 0.6131</b></div><div class="bar red"><span style="width:0.34%"></span><b>FPR 0.0034</b></div></section>
+      </div>
+      <div class="bars-row">
+        <div><h3>类别面积占比</h3>
+          <table><thead><tr><th>模型</th><th>类别</th><th>分类方案</th><th>标注</th><th>预测</th><th>标注像素数</th><th>预测像素数</th></tr></thead><tbody>
+            <tr><td>deeplabv3</td><td>非炎症/background</td><td>2</td><td>99.19%</td><td>99.57%</td><td>1,380,936,513</td><td>1,386,235,893</td></tr>
+            <tr><td>deeplabv3</td><td>肾间质炎症</td><td>2</td><td>0.81%</td><td>0.43%</td><td>11,310,271</td><td>6,010,891</td></tr>
+            <tr><td>resnet</td><td>非炎症/background</td><td>2</td><td>99.19%</td><td>99.35%</td><td>1,380,936,513</td><td>1,383,240,394</td></tr>
+            <tr><td>resnet</td><td>肾间质炎症</td><td>2</td><td>0.81%</td><td>0.65%</td><td>11,310,271</td><td>9,006,390</td></tr>
+          </tbody></table>
+        </div>
+        <div><h3>指标说明</h3><p>Sensitivity 表示真实炎症区域被检出的比例；Specificity 表示非炎症区域被正确排除的比例。FNR 越低越好，FPR 越低越好。</p></div>
+      </div>
+      <div class="table-block"><h3>阳性类别详细指标</h3>
+        <table><thead><tr><th>模型</th><th>阳性类别</th><th>标注面积</th><th>预测面积</th><th>IoU</th><th>Dice/F1</th><th>Precision</th><th>Sensitivity</th><th>Specificity</th><th>FPR</th><th>FNR</th></tr></thead><tbody>
+          <tr><td>deeplabv3</td><td>肾间质炎症</td><td>0.81%</td><td>0.43%</td><td>0.2710</td><td>0.4265</td><td>0.6145</td><td>0.3266</td><td>0.9983</td><td>0.0017</td><td>0.6734</td></tr>
+          <tr><td>resnet</td><td>肾间质炎症</td><td>0.81%</td><td>0.65%</td><td>0.2745</td><td>0.4308</td><td>0.4859</td><td>0.3869</td><td>0.9966</td><td>0.0034</td><td>0.6131</td></tr>
+        </tbody></table>
+      </div>
+    </section>
+
+    <!-- 组织分割各类别验证指标 -->
+    <section class="panel">
+      <div class="panel-title"><h2>组织分割各类别验证指标</h2><p>这里分别展示各个前景类别，背景类别已排除。</p></div>
+      <div class="cards">
+        <section class="mini-card"><h4>deeplabv3 · IFTA</h4><div class="bar blue"><span style="width:44.88%"></span><b>Dice 0.4488</b></div><div class="bar green"><span style="width:34.17%"></span><b>Sensitivity 0.3417</b></div><div class="bar purple"><span style="width:99.55%"></span><b>Specificity 0.9955</b></div><div class="bar orange"><span style="width:65.38%"></span><b>Precision 0.6538</b></div><p>GT 2.41% · Pred 1.26%</p></section>
+        <section class="mini-card"><h4>deeplabv3 · pre-IFTA</h4><div class="bar blue"><span style="width:51.02%"></span><b>Dice 0.5102</b></div><div class="bar green"><span style="width:57.58%"></span><b>Sensitivity 0.5758</b></div><div class="bar purple"><span style="width:96.35%"></span><b>Specificity 0.9635</b></div><div class="bar orange"><span style="width:45.80%"></span><b>Precision 0.4580</b></div><p>GT 5.09% · Pred 6.40%</p></section>
+        <section class="mini-card"><h4>deeplabv3 · 血管外径</h4><div class="bar blue"><span style="width:50.43%"></span><b>Dice 0.5043</b></div><div class="bar green"><span style="width:43.22%"></span><b>Sensitivity 0.4322</b></div><div class="bar purple"><span style="width:99.98%"></span><b>Specificity 0.9998</b></div><div class="bar orange"><span style="width:60.53%"></span><b>Precision 0.6053</b></div><p>GT 0.08% · Pred 0.05%</p></section>
+        <section class="mini-card"><h4>deeplabv3 · 血管内径</h4><div class="bar blue"><span style="width:55.12%"></span><b>Dice 0.5512</b></div><div class="bar green"><span style="width:47.76%"></span><b>Sensitivity 0.4776</b></div><div class="bar purple"><span style="width:99.99%"></span><b>Specificity 0.9999</b></div><div class="bar orange"><span style="width:65.15%"></span><b>Precision 0.6515</b></div><p>GT 0.03% · Pred 0.02%</p></section>
+        <section class="mini-card"><h4>deeplabv3 · 髓质</h4><div class="bar blue"><span style="width:36.79%"></span><b>Dice 0.3679</b></div><div class="bar green"><span style="width:23.18%"></span><b>Sensitivity 0.2318</b></div><div class="bar purple"><span style="width:99.96%"></span><b>Specificity 0.9996</b></div><div class="bar orange"><span style="width:89.11%"></span><b>Precision 0.8911</b></div><p>GT 1.50% · Pred 0.39%</p></section>
+        <section class="mini-card"><h4>deeplabv3 · 包膜</h4><div class="bar blue"><span style="width:87.20%"></span><b>Dice 0.8720</b></div><div class="bar green"><span style="width:87.75%"></span><b>Sensitivity 0.8775</b></div><div class="bar purple"><span style="width:99.77%"></span><b>Specificity 0.9977</b></div><div class="bar orange"><span style="width:86.66%"></span><b>Precision 0.8666</b></div><p>GT 1.69% · Pred 1.71%</p></section>
+        <section class="mini-card"><h4>resnet · IFTA</h4><div class="bar blue"><span style="width:27.94%"></span><b>Dice 0.2794</b></div><div class="bar green"><span style="width:19.85%"></span><b>Sensitivity 0.1985</b></div><div class="bar purple"><span style="width:99.45%"></span><b>Specificity 0.9945</b></div><div class="bar orange"><span style="width:47.15%"></span><b>Precision 0.4715</b></div><p>GT 2.41% · Pred 1.01%</p></section>
+        <section class="mini-card"><h4>resnet · pre-IFTA</h4><div class="bar blue"><span style="width:46.77%"></span><b>Dice 0.4677</b></div><div class="bar green"><span style="width:58.76%"></span><b>Sensitivity 0.5876</b></div><div class="bar purple"><span style="width:95.04%"></span><b>Specificity 0.9504</b></div><div class="bar orange"><span style="width:38.84%"></span><b>Precision 0.3884</b></div><p>GT 5.09% · Pred 7.70%</p></section>
+        <section class="mini-card"><h4>resnet · 血管外径</h4><div class="bar blue"><span style="width:43.38%"></span><b>Dice 0.4338</b></div><div class="bar green"><span style="width:35.56%"></span><b>Sensitivity 0.3556</b></div><div class="bar purple"><span style="width:99.98%"></span><b>Specificity 0.9998</b></div><div class="bar orange"><span style="width:55.61%"></span><b>Precision 0.5561</b></div><p>GT 0.08% · Pred 0.05%</p></section>
+        <section class="mini-card"><h4>resnet · 血管内径</h4><div class="bar blue"><span style="width:48.50%"></span><b>Dice 0.4850</b></div><div class="bar green"><span style="width:40.70%"></span><b>Sensitivity 0.4070</b></div><div class="bar purple"><span style="width:99.99%"></span><b>Specificity 0.9999</b></div><div class="bar orange"><span style="width:59.99%"></span><b>Precision 0.5999</b></div><p>GT 0.03% · Pred 0.02%</p></section>
+        <section class="mini-card"><h4>resnet · 髓质</h4><div class="bar blue"><span style="width:2.68%"></span><b>Dice 0.0268</b></div><div class="bar green"><span style="width:1.50%"></span><b>Sensitivity 0.0150</b></div><div class="bar purple"><span style="width:99.84%"></span><b>Specificity 0.9984</b></div><div class="bar orange"><span style="width:12.69%"></span><b>Precision 0.1269</b></div><p>GT 1.50% · Pred 0.18%</p></section>
+        <section class="mini-card"><h4>resnet · 包膜</h4><div class="bar blue"><span style="width:33.94%"></span><b>Dice 0.3394</b></div><div class="bar green"><span style="width:22.54%"></span><b>Sensitivity 0.2254</b></div><div class="bar purple"><span style="width:99.82%"></span><b>Specificity 0.9982</b></div><div class="bar orange"><span style="width:68.74%"></span><b>Precision 0.6874</b></div><p>GT 1.69% · Pred 0.55%</p></section>
+      </div>
+    </section>
+
+    <!-- 组织分割详细指标表 -->
+    <section class="panel">
+      <div class="panel-title"><h2>组织分割详细指标表</h2></div>
+      <table><thead><tr><th>模型</th><th>类别</th><th>标注面积</th><th>预测面积</th><th>IoU</th><th>Dice/F1</th><th>Precision</th><th>Sensitivity</th><th>Specificity</th></tr></thead><tbody>
+        <tr><td>deeplabv3</td><td>IFTA</td><td>2.41%</td><td>1.26%</td><td>0.2893</td><td>0.4488</td><td>0.6538</td><td>0.3417</td><td>0.9955</td></tr>
+        <tr><td>deeplabv3</td><td>pre-IFTA</td><td>5.09%</td><td>6.40%</td><td>0.3425</td><td>0.5102</td><td>0.4580</td><td>0.5758</td><td>0.9635</td></tr>
+        <tr><td>deeplabv3</td><td>血管外径</td><td>0.08%</td><td>0.05%</td><td>0.3372</td><td>0.5043</td><td>0.6053</td><td>0.4322</td><td>0.9998</td></tr>
+        <tr><td>deeplabv3</td><td>血管内径</td><td>0.03%</td><td>0.02%</td><td>0.3805</td><td>0.5512</td><td>0.6515</td><td>0.4776</td><td>0.9999</td></tr>
+        <tr><td>deeplabv3</td><td>髓质</td><td>1.50%</td><td>0.39%</td><td>0.2254</td><td>0.3679</td><td>0.8911</td><td>0.2318</td><td>0.9996</td></tr>
+        <tr><td>deeplabv3</td><td>包膜</td><td>1.69%</td><td>1.71%</td><td>0.7731</td><td>0.8720</td><td>0.8666</td><td>0.8775</td><td>0.9977</td></tr>
+        <tr><td>resnet</td><td>IFTA</td><td>2.41%</td><td>1.01%</td><td>0.1624</td><td>0.2794</td><td>0.4715</td><td>0.1985</td><td>0.9945</td></tr>
+        <tr><td>resnet</td><td>pre-IFTA</td><td>5.09%</td><td>7.70%</td><td>0.3052</td><td>0.4677</td><td>0.3884</td><td>0.5876</td><td>0.9504</td></tr>
+        <tr><td>resnet</td><td>血管外径</td><td>0.08%</td><td>0.05%</td><td>0.2770</td><td>0.4338</td><td>0.5561</td><td>0.3556</td><td>0.9998</td></tr>
+        <tr><td>resnet</td><td>血管内径</td><td>0.03%</td><td>0.02%</td><td>0.3201</td><td>0.4850</td><td>0.5999</td><td>0.4070</td><td>0.9999</td></tr>
+        <tr><td>resnet</td><td>髓质</td><td>1.50%</td><td>0.18%</td><td>0.0136</td><td>0.0268</td><td>0.1269</td><td>0.0150</td><td>0.9984</td></tr>
+        <tr><td>resnet</td><td>包膜</td><td>1.69%</td><td>0.55%</td><td>0.2044</td><td>0.3394</td><td>0.6874</td><td>0.2254</td><td>0.9982</td></tr>
+      </tbody></table>
+    </section>
+
+    <!-- 训练过程汇总 -->
+    <section class="panel">
+      <div class="panel-title"><h2>训练过程汇总</h2></div>
+      <table><thead><tr><th>任务</th><th>模型</th><th>训练轮数</th><th>最终损失</th><th>最佳损失</th><th>最佳损失轮次</th><th>最终训练像素准确率</th></tr></thead><tbody>
+        <tr><td>炎症分割</td><td>deeplabv3</td><td>120</td><td>0.0722</td><td>0.0678</td><td>114</td><td>0.9955</td></tr>
+        <tr><td>炎症分割</td><td>resnet</td><td>120</td><td>0.4288</td><td>0.4280</td><td>116</td><td>0.9964</td></tr>
+        <tr><td>组织分割</td><td>deeplabv3</td><td>120</td><td>0.0883</td><td>0.0864</td><td>119</td><td>0.9743</td></tr>
+        <tr><td>组织分割</td><td>resnet</td><td>120</td><td>0.3272</td><td>0.3264</td><td>118</td><td>0.9671</td></tr>
+      </tbody></table>
+    </section>
+  </div>
+</div>
+
+<!-- ── Scripts ── -->
+<script>
+  // ── Tab switching ──
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Tab 1: Segmentation comparison ──
+  (function() {
+    var legends = [
+      {
+        title: "组织分割",
+        items: [
+          { name: "IFTA（肾间质纤维化/萎缩）", bgr: [0, 0, 255] },
+          { name: "pre-IFTA（前期纤维化）", bgr: [0, 255, 0] },
+          { name: "血管外径", bgr: [255, 0, 0] },
+          { name: "血管内径", bgr: [255, 255, 0] },
+          { name: "髓质", bgr: [255, 0, 255] },
+          { name: "包膜", bgr: [0, 255, 255] },
+        ],
+      },
+      {
+        title: "炎症分割",
+        items: [{ name: "肾间质炎症", bgr: [255, 100, 0] }],
+      },
+    ];
+
+    var cases = [
+      "1210411-PASM", "1211056-PASM", "1211293-PASM",
+      "1615221-PASM", "1818020-PASM",
+    ];
+
+    var models = [
+      { label: "Deeplabv3", dir: "deeplabv3" },
+      { label: "Simple Segmenter", dir: "simple_segmenter" },
+    ];
+
+    var tasks = [
+      { label: "炎症分割", key: "inflammation" },
+      { label: "组织分割", key: "tissue" },
+    ];
+
+    var headers = ["分割任务", "真实标注"].concat(models.map(function(m) { return m.label; }));
+
+    function bgrToRgb(arr) { return [arr[2], arr[1], arr[0]]; }
+
+    function renderLegend() {
+      var container = document.getElementById("legend-groups");
+      container.innerHTML = legends.map(function(group) {
+        var itemsHtml = group.items.map(function(item) {
+          var rgb = bgrToRgb(item.bgr);
+          return '<li class="color-item">' +
+            '<span class="color-swatch" style="background-color: rgb(' + rgb.join(", ") + ');"></span>' +
+            '<span><span class="color-name">' + item.name + '</span>' +
+            '<span class="color-value">BGR (' + item.bgr.join(", ") + ')</span></span></li>';
+        }).join("");
+        return '<section class="legend-group"><h3 class="legend-group-title">' + group.title + '</h3><ul class="color-list">' + itemsHtml + '</ul></section>';
+      }).join("");
+    }
+
+    function imageCell(src, alt) {
+      return '<td class="image-cell"><img class="result-image" src="' + src + '" alt="' + alt + '" onerror="this.replaceWith(createMissing(\'' + src + '\'))" /></td>';
+    }
+
+    function createMissing(src) {
+      var div = document.createElement("div");
+      div.className = "missing";
+      div.textContent = "图片未找到：" + src;
+      return div;
+    }
+
+    function rowForTask(caseId, task) {
+      var gtSrc = models[0].dir + "/" + caseId + "/gt_" + task.key + "_overlay.png";
+      var predSrcs = models.map(function(model) {
+        return model.dir + "/" + caseId + "/pred_" + task.key + "_overlay.png";
+      });
+      var images = [gtSrc].concat(predSrcs);
+      return '<tr><td class="desc">' + task.label + '</td>' +
+        images.map(function(src, i) { return imageCell(src, caseId + " " + task.label + " " + headers[i + 1]); }).join("") +
+        '</tr>';
+    }
+
+    function renderTables() {
+      var container = document.getElementById("tables");
+      container.innerHTML = cases.map(function(caseId, idx) {
+        var headerHtml = headers.map(function(h, hi) {
+          return '<th class="' + (hi === 0 ? "desc" : "image-cell") + '">' + h + '</th>';
+        }).join("");
+        return '<section class="table-section"><h2 class="section-title">表格 ' + (idx + 1) + '：' + caseId + '</h2>' +
+          '<div class="table-wrap"><table><thead><tr>' + headerHtml + '</tr></thead><tbody>' +
+          tasks.map(function(task) { return rowForTask(caseId, task); }).join("") +
+          '</tbody></table></div></section>';
+      }).join("");
+    }
+
+    renderLegend();
+    renderTables();
+  })();
+
+  // ── Keep legend visible only on seg tab ──
+  (function() {
+    var legend = document.querySelector('.legend-section');
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        legend.style.display = btn.dataset.tab === 'seg' ? '' : 'none';
+      });
+    });
+  })();
+</script>
+</body>
+</html>
