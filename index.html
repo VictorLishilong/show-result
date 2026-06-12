@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>肾脏病理切片分割结果对比</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #667085;
+      --line: #d7dce3;
+      --head: #eef3f8;
+      --accent: #1d6f8f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      line-height: 1.5;
+    }
+
+    .page {
+      width: 100%;
+      margin: 0;
+      padding: 28px 0 56px;
+    }
+
+    .page-header {
+      padding: 0 20px 20px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .legend-section {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 50;
+      width: max-content;
+      max-width: min(300px, calc(100vw - 32px));
+      max-height: calc(100vh - 32px);
+      margin: 0;
+      padding: 12px;
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 34px rgba(31, 41, 55, 0.18);
+    }
+
+    .legend-title {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .legend-layout {
+      display: block;
+    }
+
+    .legend-groups {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .legend-group-title {
+      margin: 0 0 8px;
+      color: #344054;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .color-list {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .color-item {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 8px;
+      align-items: center;
+      min-height: 26px;
+    }
+
+    .color-swatch {
+      width: 22px;
+      height: 22px;
+      border: 1px solid rgba(31, 41, 55, 0.22);
+      border-radius: 4px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+    }
+
+    .color-name {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .color-value {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .table-section {
+      margin: 0 0 34px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 0;
+      border-right: 0;
+      overflow: hidden;
+    }
+
+    .section-title {
+      margin: 0;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0 16px 18px;
+    }
+
+    table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: 0;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th {
+      height: 52px;
+      padding: 10px 12px;
+      background: var(--head);
+      color: #223044;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    td {
+      height: 520px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .desc {
+      width: 180px;
+      min-width: 180px;
+      color: #344054;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .image-cell {
+      width: 640px;
+      min-width: 640px;
+      text-align: center;
+    }
+
+    .result-image,
+    .missing {
+      width: 612px;
+      height: 492px;
+      border-radius: 6px;
+    }
+
+    .result-image {
+      display: block;
+      object-fit: contain;
+      background: #f8fafc;
+      border: 1px solid #e6e9ee;
+    }
+
+    .missing {
+      display: grid;
+      place-items: center;
+      background: #f8fafc;
+      border: 1px dashed #b9c2cf;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      padding: 12px;
+      word-break: break-all;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding-top: 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .section-title {
+        font-size: 16px;
+      }
+
+      .legend-section {
+        top: auto;
+        right: 8px;
+        bottom: 8px;
+        left: 8px;
+        width: auto;
+        max-width: none;
+        max-height: 42vh;
+      }
+
+      .legend-groups {
+        grid-template-columns: 1fr;
+      }
+
+      .desc {
+        width: 140px;
+        min-width: 140px;
+      }
+
+      .image-cell {
+        width: 520px;
+        min-width: 520px;
+      }
+
+      .result-image,
+      .missing {
+        width: 492px;
+        height: 396px;
+      }
+
+      td {
+        height: 424px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="page-header">
+      <h1>肾脏病理切片分割结果对比</h1>
+      <p class="subtitle">展示组织分割与炎症分割结果</p>
+    </header>
+    <section class="legend-section" aria-labelledby="legend-title">
+      <h2 class="legend-title" id="legend-title">颜色对照表</h2>
+      <div class="legend-layout">
+        <div class="legend-groups" id="legend-groups"></div>
+      </div>
+    </section>
+    <div id="tables"></div>
+  </main>
+
+  <script>
+    const legends = [
+      {
+        title: "组织分割",
+        items: [
+          { name: "IFTA（肾间质纤维化/萎缩）", bgr: [0, 0, 255] },
+          { name: "pre-IFTA（前期纤维化）", bgr: [0, 255, 0] },
+          { name: "血管外径", bgr: [255, 0, 0] },
+          { name: "血管内径", bgr: [255, 255, 0] },
+          { name: "髓质", bgr: [255, 0, 255] },
+          { name: "包膜", bgr: [0, 255, 255] }
+        ]
+      },
+      {
+        title: "炎症分割",
+        items: [
+          { name: "肾间质炎症", bgr: [255, 100, 0] }
+        ]
+      }
+    ];
+
+    const cases = [
+      "1210411-PASM",
+      "1211056-PASM",
+      "1211293-PASM",
+      "1615221-PASM",
+      "1818020-PASM"
+    ];
+
+    const models = [
+      { label: "Deeplabv3", dir: "deeplabv3" },
+      { label: "Simple Segmenter", dir: "simple_segmenter" }
+    ];
+
+    const tasks = [
+      { label: "炎症分割", key: "inflammation" },
+      { label: "组织分割", key: "tissue" }
+    ];
+
+    const headers = ["分割任务", "真实标注", ...models.map((model) => model.label)];
+
+    function bgrToRgb([blue, green, red]) {
+      return [red, green, blue];
+    }
+
+    function renderLegend() {
+      const container = document.getElementById("legend-groups");
+      container.innerHTML = legends.map((group) => {
+        const itemsHtml = group.items.map((item) => {
+          const rgb = bgrToRgb(item.bgr);
+          return `
+            <li class="color-item">
+              <span class="color-swatch" style="background-color: rgb(${rgb.join(", ")});"></span>
+              <span>
+                <span class="color-name">${item.name}</span>
+                <span class="color-value">BGR (${item.bgr.join(", ")})</span>
+              </span>
+            </li>
+          `;
+        }).join("");
+
+        return `
+          <section class="legend-group">
+            <h3 class="legend-group-title">${group.title}</h3>
+            <ul class="color-list">${itemsHtml}</ul>
+          </section>
+        `;
+      }).join("");
+    }
+
+    function imageCell(src, alt) {
+      return `
+        <td class="image-cell">
+          <img class="result-image" src="${src}" alt="${alt}" onerror="this.replaceWith(createMissing('${src}'))" />
+        </td>
+      `;
+    }
+
+    function createMissing(src) {
+      const div = document.createElement("div");
+      div.className = "missing";
+      div.textContent = "图片未找到：" + src;
+      return div;
+    }
+
+    function rowForTask(caseId, task) {
+      const gtSrc = `${models[0].dir}/${caseId}/gt_${task.key}_overlay.png`;
+      const predSrcs = models.map((model) => `${model.dir}/${caseId}/pred_${task.key}_overlay.png`);
+      const images = [gtSrc, ...predSrcs];
+
+      return `
+        <tr>
+          <td class="desc">${task.label}</td>
+          ${images.map((src, index) => imageCell(src, `${caseId} ${task.label} ${headers[index + 1]}`)).join("")}
+        </tr>
+      `;
+    }
+
+    function renderTables() {
+      const container = document.getElementById("tables");
+      container.innerHTML = cases.map((caseId, index) => {
+        const headerHtml = headers.map((header, headerIndex) => {
+          const className = headerIndex === 0 ? "desc" : "image-cell";
+          return `<th class="${className}">${header}</th>`;
+        }).join("");
+
+        return `
+          <section class="table-section">
+            <h2 class="section-title">表格 ${index + 1}：${caseId}</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>${headerHtml}</tr>
+                </thead>
+                <tbody>${tasks.map((task) => rowForTask(caseId, task)).join("")}</tbody>
+              </table>
+            </div>
+          </section>
+        `;
+      }).join("");
+    }
+
+    renderLegend();
+    renderTables();
+  </script>
+</body>
+</html>
