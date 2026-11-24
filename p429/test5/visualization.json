@@ -1,0 +1,39 @@
+{
+  "split": "test",
+  "cases": 5,
+  "patches": 403,
+  "checkpoint_sha256": "9300bae6088545313360306961e7739728378910cac355f4a6a3e3aa752bd518",
+  "manifest_sha256": "3ae91d728642374b9bdf1788b9fc3b4193ab0564648fcb1b3dcc905b53ee9777",
+  "roi_examples": {
+    "test-01": {
+      "width": 2800,
+      "height": 1609,
+      "native_width": 7424,
+      "native_height": 4267
+    },
+    "test-02": {
+      "width": 2800,
+      "height": 1766,
+      "native_width": 6902,
+      "native_height": 4352
+    },
+    "test-03": {
+      "width": 2800,
+      "height": 2076,
+      "native_width": 7424,
+      "native_height": 5504
+    },
+    "test-04": {
+      "width": 1615,
+      "height": 2800,
+      "native_width": 3828,
+      "native_height": 6636
+    },
+    "test-05": {
+      "width": 2773,
+      "height": 2800,
+      "native_width": 3549,
+      "native_height": 3584
+    }
+  }
+}

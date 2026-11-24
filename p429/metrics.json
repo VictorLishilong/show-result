@@ -159,5 +159,6 @@
   },
   "negative_validation_cases": 1,
   "held_out_test_cases": 5,
-  "held_out_test_results_in_report": false
+  "held_out_test_visualizations_in_report": true,
+  "held_out_test_visualization_manifest": "test5/visualization.json"
 }
