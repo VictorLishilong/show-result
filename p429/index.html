@@ -3,74 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="0; url=../">
+<link rel="canonical" href="https://victorlishilong.github.io/show-result/">
 <title>P429 肾间质炎症分割</title>
-<style>
-:root { color-scheme: light; --ink:#182d35; --muted:#4a606b; --line:#d6e1e5; --accent:#166881; }
-* { box-sizing:border-box; }
-body { margin:0; background:#f5f7fa; color:var(--ink); font:16px/1.6 "Microsoft YaHei",system-ui,sans-serif; }
-main { width:min(1200px,calc(100% - 32px)); margin:0 auto 52px; }
-nav { padding:18px 0; }
-a { color:var(--accent); text-underline-offset:.17em; }
-header { padding:clamp(22px,5vw,44px); border-radius:14px; background:#184655; color:#fff; }
-h1 { margin:0; font-size:clamp(26px,5vw,43px); line-height:1.2; }
-h2 { font-size:24px; margin:0 0 10px; }
-h3 { margin:0; font-size:18px; }
-p { margin:8px 0; }
-header p { color:#e0edf0; }
-.highlights { display:flex; flex-wrap:wrap; gap:20px 40px; margin:20px 0 0; }
-.highlights div { min-width:140px; }
-.highlights dt { color:#e0edf0; }
-.highlights dd { margin:0; font-size:30px; font-weight:700; font-variant-numeric:tabular-nums; }
-.card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:clamp(14px,3vw,24px); margin-top:16px; }
-section { margin:27px 0; }
-table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
-th,td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); }
-thead { background:#eef4f6; }
-.metrics,.note { color:var(--muted); }
-.images { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:start; gap:12px; margin-top:14px; }
-figure { margin:0; }
-figure a { display:block; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#fff; }
-img { display:block; width:100%; height:auto; }
-figcaption { text-align:center; margin-top:7px; font-size:14px; }
-.legend { display:inline-block; width:12px; height:12px; background:#ee7d23; border:1px solid #a65a19; border-radius:2px; vertical-align:baseline; margin-right:7px; }
-@media(max-width:670px) { .images { grid-template-columns:1fr; } }
-</style>
 </head>
 <body>
-<main>
-<nav aria-label="展示导航"><a href="../">返回分割展示首页</a></nav>
-<header>
-<h1>P429 肾间质炎症分割</h1>
-<p>原始划分为 100 例训练、24 例开发验证、5 例独立保留测试。</p><p>本页的 P429 数值来自 24 例开发验证，其中 23 例有炎症标注，1 例为炎症阴性。</p>
-<dl class="highlights">
-<div><dt>阳性 ROI 宏 Dice</dt><dd>0.6956</dd></div>
-<div><dt>阳性 ROI 宏召回率</dt><dd>74.0%</dd></div>
-<div><dt>匹配标注病灶</dt><dd>124 / 149</dd></div>
-</dl>
-</header>
-<section class="card" aria-labelledby="validation">
-<h2 id="validation">24 例开发验证指标</h2>
-<p>阳性 ROI 宏 Dice、IoU、精确率和召回率按 23 例有炎症标注的病例等权平均。特异度和准确率统计全部 24 例。</p>
-<table>
-<thead><tr><th scope="col">指标</th><th scope="col">病例均值</th><th scope="col">纳入病例</th></tr></thead>
-<tbody><tr><th scope='row'>Dice</th><td>0.6956</td><td>23</td></tr>
-<tr><th scope='row'>IoU</th><td>0.5564</td><td>23</td></tr>
-<tr><th scope='row'>精确率</th><td>0.7145</td><td>23</td></tr>
-<tr><th scope='row'>召回率</th><td>0.7400</td><td>23</td></tr>
-<tr><th scope='row'>特异度</th><td>0.9920</td><td>24</td></tr>
-<tr><th scope='row'>准确率</th><td>0.9826</td><td>24</td></tr></tbody>
-</table>
-<p>病灶匹配计数为 124 个命中、159 个未匹配预测、25 个漏检。病灶匹配使用 IoU ≥ 0.10 和最小组件面积 50 µm²。</p>
-<p class="note">使用原划分的 2,030 个验证裁块。预测以 FP32 推理、Hann 加权拼接、阈值 0.50 生成，采用单次视图推理。评估范围为裁块覆盖的完整标注 ROI。</p>
-<p><a href="metrics.json">下载汇总指标 JSON</a> · <a href="https://github.com/VictorLishilong/wsi_kidney/blob/codex/segmentation-performance/research/P429S_FINAL_AND_P431S_DECISION_2026-11-09.md">原始实验记录</a></p>
-</section>
-<section class="card" aria-labelledby="held-out"><h2 id="held-out">5 例独立保留测试</h2><p>本页尚未提供 P429 的独立测试指标或图集。此前发布的 5 例独立测试结果对应 P10。</p></section>
-<section aria-labelledby="examples"><h2 id="examples">开发验证集的 4 个 ROI 示例</h2><p>从 24 例开发验证病例中选取，分别展示高重叠、范围漏分、范围偏大和混合错误。</p><p class="note"><span class="legend" aria-hidden="true"></span>橙色表示肾间质炎症。点击图片可查看高清图。首例保留原分辨率，其余示例最长边为 2800 像素。</p><article class='card example'><h3>验证示例 01 · 高重叠</h3><p class='metrics'>Dice 0.9187 · 精确率 0.8959 · 召回率 0.9427</p><div class='images'><figure><a href='roi/roi-01-rgb.webp' target='_blank' rel='noopener'><img src='roi/roi-01-rgb-preview.webp' width='1413' height='1440' loading='lazy' decoding='async' alt='验证示例 01，原始 ROI'></a><figcaption>原始 ROI</figcaption></figure><figure><a href='roi/roi-01-annotation.webp' target='_blank' rel='noopener'><img src='roi/roi-01-annotation-preview.webp' width='1413' height='1440' loading='lazy' decoding='async' alt='验证示例 01，人工标注'></a><figcaption>人工标注</figcaption></figure><figure><a href='roi/roi-01-prediction.webp' target='_blank' rel='noopener'><img src='roi/roi-01-prediction-preview.webp' width='1413' height='1440' loading='lazy' decoding='async' alt='验证示例 01，P429 预测'></a><figcaption>P429 预测</figcaption></figure></div></article><article class='card example'><h3>验证示例 02 · 范围漏分</h3><p class='metrics'>Dice 0.3396 · 精确率 0.9415 · 召回率 0.2072</p><div class='images'><figure><a href='roi/roi-02-rgb.webp' target='_blank' rel='noopener'><img src='roi/roi-02-rgb-preview.webp' width='1247' height='1440' loading='lazy' decoding='async' alt='验证示例 02，原始 ROI'></a><figcaption>原始 ROI</figcaption></figure><figure><a href='roi/roi-02-annotation.webp' target='_blank' rel='noopener'><img src='roi/roi-02-annotation-preview.webp' width='1247' height='1440' loading='lazy' decoding='async' alt='验证示例 02，人工标注'></a><figcaption>人工标注</figcaption></figure><figure><a href='roi/roi-02-prediction.webp' target='_blank' rel='noopener'><img src='roi/roi-02-prediction-preview.webp' width='1247' height='1440' loading='lazy' decoding='async' alt='验证示例 02，P429 预测'></a><figcaption>P429 预测</figcaption></figure></div></article><article class='card example'><h3>验证示例 03 · 预测范围偏大</h3><p class='metrics'>Dice 0.4855 · 精确率 0.3350 · 召回率 0.8813</p><div class='images'><figure><a href='roi/roi-03-rgb.webp' target='_blank' rel='noopener'><img src='roi/roi-03-rgb-preview.webp' width='1440' height='1440' loading='lazy' decoding='async' alt='验证示例 03，原始 ROI'></a><figcaption>原始 ROI</figcaption></figure><figure><a href='roi/roi-03-annotation.webp' target='_blank' rel='noopener'><img src='roi/roi-03-annotation-preview.webp' width='1440' height='1440' loading='lazy' decoding='async' alt='验证示例 03，人工标注'></a><figcaption>人工标注</figcaption></figure><figure><a href='roi/roi-03-prediction.webp' target='_blank' rel='noopener'><img src='roi/roi-03-prediction-preview.webp' width='1440' height='1440' loading='lazy' decoding='async' alt='验证示例 03，P429 预测'></a><figcaption>P429 预测</figcaption></figure></div></article><article class='card example'><h3>验证示例 04 · 漏分与误分并存</h3><p class='metrics'>Dice 0.3967 · 精确率 0.3623 · 召回率 0.4384</p><div class='images'><figure><a href='roi/roi-04-rgb.webp' target='_blank' rel='noopener'><img src='roi/roi-04-rgb-preview.webp' width='1440' height='1344' loading='lazy' decoding='async' alt='验证示例 04，原始 ROI'></a><figcaption>原始 ROI</figcaption></figure><figure><a href='roi/roi-04-annotation.webp' target='_blank' rel='noopener'><img src='roi/roi-04-annotation-preview.webp' width='1440' height='1344' loading='lazy' decoding='async' alt='验证示例 04，人工标注'></a><figcaption>人工标注</figcaption></figure><figure><a href='roi/roi-04-prediction.webp' target='_blank' rel='noopener'><img src='roi/roi-04-prediction-preview.webp' width='1440' height='1344' loading='lazy' decoding='async' alt='验证示例 04，P429 预测'></a><figcaption>P429 预测</figcaption></figure></div></article></section>
-<section class="card" aria-labelledby="extent">
-<h2 id="extent">范围错误集中在 IFTA</h2>
-<p>IFTA 约占验证 ROI 面积的 20.1%，包含 85.3% 的误分像素和 88.8% 的漏分像素。IFTA 内 93.1% 的漏分像素来自已被模型找到一部分的病灶。</p>
-<p><a href="https://github.com/VictorLishilong/wsi_kidney/blob/codex/segmentation-performance/research/P609_ORIGINAL_SPLIT_ERROR_ANALYSIS_2026-11-22.md">组织分区误差分析</a></p>
-</section>
-</main>
+<p><a href="../">打开 P429 汇报首页</a></p>
 </body>
 </html>

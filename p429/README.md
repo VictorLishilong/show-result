@@ -1,6 +1,6 @@
 # P429 肾间质炎症分割
 
-[打开汇报页面](https://victorlishilong.github.io/show-result/p429/) · [项目仓库](https://github.com/VictorLishilong/wsi_kidney) · [汇总指标](metrics.json)
+[打开汇报页面](https://victorlishilong.github.io/show-result/) · [项目仓库](https://github.com/VictorLishilong/wsi_kidney) · [汇总指标](metrics.json)
 
 原始划分为 **100 例训练、24 例开发验证、5 例独立保留测试**。24 例开发验证中有 23 例炎症阳性和 1 例炎症阴性。阳性完整 ROI 宏 Dice **0.6956** 和宏召回率 **74.0%** 均按 23 例阳性病例等权平均。模型匹配到 149 个验证标注病灶中的 **124 个**。
 
