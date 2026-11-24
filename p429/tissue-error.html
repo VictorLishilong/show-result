@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P429 组织分区误差分析</title>
+<style>
+:root { color-scheme: light; color: #182d35; background: #f5f7fa; font: 16px/1.6 "Microsoft YaHei", system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { width: min(780px, calc(100% - 32px)); margin: 24px auto 48px; }
+h1 { line-height: 1.2; font-size: clamp(26px, 5vw, 38px); margin: 12px 0; }
+h2 { line-height: 1.3; font-size: 22px; margin: 0 0 10px; }
+p { margin: 8px 0; }
+a { color: #166881; text-underline-offset: .16em; }
+section { padding: clamp(14px, 3vw, 24px); margin-top: 16px; background: #fff; border: 1px solid #d6e1e5; border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid #d6e1e5; }
+thead { background: #eef4f6; }
+td:nth-child(2) { white-space: nowrap; }
+.note { color: #4a606b; }
+</style>
+</head>
+<body>
+<main>
+<nav aria-label="汇报导航"><a href="../#extent">返回 P429 汇报</a></nav>
+<h1>P429 组织分区误差分析</h1>
+<p class="note">原开发验证集 24 例 · P609 汇总 · 2026 年 11 月 22 日</p>
+<section aria-labelledby="ifta">
+<h2 id="ifta">IFTA 内的范围误差</h2>
+<p>将 P429 的炎症预测与同一 ROI 内的组织人工标注对齐。IFTA 为间质纤维化和肾小管萎缩，统计时合并 pre-IFTA。</p>
+<table aria-label="IFTA 区域像素统计">
+<thead><tr><th scope="col">统计项</th><th scope="col">像素数</th><th scope="col">比例与统计范围</th></tr></thead>
+<tbody>
+<tr><th scope="row">IFTA 面积</th><td>69,109,360</td><td>全部 ROI 像素的 20.1%</td></tr>
+<tr><th scope="row">IFTA 内 FP</th><td>2,526,749</td><td>全部 FP 像素的 85.3%</td></tr>
+<tr><th scope="row">IFTA 内 FN</th><td>4,403,167</td><td>全部 FN 像素的 88.8%</td></tr>
+<tr><th scope="row">位于已部分检出病灶的 FN</th><td>4,100,985</td><td>IFTA 内 FN 的 93.1%</td></tr>
+<tr><th scope="row">与真实病灶相连的预测区域中的 FP</th><td>1,591,638</td><td>IFTA 内 FP 的 63.0%</td></tr>
+</tbody>
+</table>
+<p>这里的 FP 和 FN 按像素统计。23 例炎症阳性病例中，16 例的 FP 和 FN 都有过半位于 IFTA。最常见的漏分发生在已检出一部分的病灶内。</p>
+</section>
+<section aria-labelledby="evaluation">
+<h2 id="evaluation">P429 评估记录</h2>
+<p>本展示采用 P429 原结构续训第 2 轮的固定权重。在 24 例原开发验证上以 FP32 推理、Hann 加权拼接、阈值 0.50 生成预测。23 例阳性病例的完整 ROI Macro Dice 为 <strong>0.6956</strong>。</p>
+<p>P609 对 24 例重新推理，并逐例核对 TP、FP 和 FN 像素数，与原始评估一致。上表使用开发验证集的结果汇总。</p>
+<p><a href="metrics.json">下载 P429 验证指标 JSON</a> · <a href="../#validation">查看验证指标表</a></p>
+</section>
+</main>
+</body>
+</html>

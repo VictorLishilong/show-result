@@ -62,7 +62,7 @@ figcaption { text-align:center; margin-top:7px; font-size:14px; }
 </table>
 <p>病灶匹配计数为 124 TP、159 FP 和 25 FN。病灶匹配使用 IoU ≥ 0.10 和最小组件面积 50 µm²。</p>
 <p class="note">使用原划分的 2,030 个验证裁块。预测以 FP32 推理、Hann 加权拼接、阈值 0.50 生成，采用单次视图推理。评估范围为裁块覆盖的完整标注 ROI。</p>
-<p><a href="p429/metrics.json">下载汇总指标 JSON</a> · <a href="https://github.com/VictorLishilong/wsi_kidney/blob/codex/segmentation-performance/research/P429S_FINAL_AND_P431S_DECISION_2026-11-09.md">原始实验记录</a></p>
+<p><a href="p429/metrics.json">下载汇总指标 JSON</a> · <a href="p429/tissue-error.html#evaluation">P429 评估记录</a></p>
 </section>
 <section aria-labelledby="held-out"><h2 id="held-out">5 例独立保留测试的 ROI 对照</h2><p class="note"><span class="legend" aria-hidden="true"></span>橙色表示肾间质炎症。展示全部 5 例的原图、人工标注和 P429 预测。点击图片可缩放到组织细节。</p><article class="card example"><h3>保留测试 01</h3><div class="images"><figure><a href="p429/zoom.html?case=test-01&amp;view=rgb" target="_blank" rel="noopener"><img src="p429/test5/test-01-rgb-preview.webp" width="1440" height="827" loading="lazy" decoding="async" alt="保留测试 01，原始 ROI"></a><figcaption>原始 ROI</figcaption></figure><figure><a href="p429/zoom.html?case=test-01&amp;view=annotation" target="_blank" rel="noopener"><img src="p429/test5/test-01-annotation-preview.webp" width="1440" height="827" loading="lazy" decoding="async" alt="保留测试 01，人工标注"></a><figcaption>人工标注</figcaption></figure><figure><a href="p429/zoom.html?case=test-01&amp;view=prediction" target="_blank" rel="noopener"><img src="p429/test5/test-01-prediction-preview.webp" width="1440" height="827" loading="lazy" decoding="async" alt="保留测试 01，P429 预测"></a><figcaption>P429 预测</figcaption></figure></div></article>
 <article class="card example"><h3>保留测试 02</h3><div class="images"><figure><a href="p429/zoom.html?case=test-02&amp;view=rgb" target="_blank" rel="noopener"><img src="p429/test5/test-02-rgb-preview.webp" width="1440" height="908" loading="lazy" decoding="async" alt="保留测试 02，原始 ROI"></a><figcaption>原始 ROI</figcaption></figure><figure><a href="p429/zoom.html?case=test-02&amp;view=annotation" target="_blank" rel="noopener"><img src="p429/test5/test-02-annotation-preview.webp" width="1440" height="908" loading="lazy" decoding="async" alt="保留测试 02，人工标注"></a><figcaption>人工标注</figcaption></figure><figure><a href="p429/zoom.html?case=test-02&amp;view=prediction" target="_blank" rel="noopener"><img src="p429/test5/test-02-prediction-preview.webp" width="1440" height="908" loading="lazy" decoding="async" alt="保留测试 02，P429 预测"></a><figcaption>P429 预测</figcaption></figure></div></article>
@@ -73,7 +73,7 @@ figcaption { text-align:center; margin-top:7px; font-size:14px; }
 <section class="card" aria-labelledby="extent">
 <h2 id="extent">范围错误集中在 IFTA</h2>
 <p>IFTA 约占验证 ROI 面积的 20.1%，包含 85.3% 的误分像素和 88.8% 的漏分像素。IFTA 内 93.1% 的漏分像素来自已被模型找到一部分的病灶。</p>
-<p><a href="https://github.com/VictorLishilong/wsi_kidney/blob/codex/segmentation-performance/research/P609_ORIGINAL_SPLIT_ERROR_ANALYSIS_2026-11-22.md">组织分区误差分析</a></p>
+<p><a href="p429/tissue-error.html">组织分区误差分析</a></p>
 </section>
 </main>
 </body>
