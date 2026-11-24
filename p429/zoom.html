@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P429 ROI 高清查看</title>
+<style>
+:root { color-scheme: light; font: 15px/1.5 "Microsoft YaHei", system-ui, sans-serif; color: #182d35; background: #f5f7fa; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; padding: 16px; gap: 12px; }
+header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; }
+h1 { font-size: clamp(19px, 4vw, 27px); margin: 0; }
+a { color: #166881; }
+.toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.toolbar button, .toolbar select { font: inherit; padding: 6px 10px; min-height: 36px; background: #fff; color: #182d35; border: 1px solid #b9cdd3; border-radius: 6px; }
+.toolbar button { cursor: pointer; }
+.toolbar button[aria-pressed="true"] { color: #fff; background: #184655; border-color: #184655; }
+.toolbar button:focus-visible, .toolbar select:focus-visible { outline: 2px solid #166881; outline-offset: 2px; }
+.toolbar button:disabled { opacity: .6; cursor: default; }
+.group { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+#canvas { height: 78vh; height: 78dvh; min-height: 370px; position: relative; overflow: hidden; border-radius: 10px; background: #fff; border: 1px solid #d6e1e5; }
+#canvas > .openseadragon-container { position: absolute !important; inset: 0; }
+#scale { position: absolute; z-index: 5; left: 14px; bottom: 14px; padding: 4px 8px; background: #fff; border: 1px solid #b9cdd3; border-radius: 5px; text-align: center; pointer-events: none; font-variant-numeric: tabular-nums; }
+#scale-bar { display: block; border-bottom: 2px solid #182d35; margin: 0 auto 2px; }
+#attribution, #status { margin: 0; color: #4a606b; }
+#status:empty { display: none; }
+@media(max-width: 620px) { main { padding: 10px; } }
+</style>
+<script src="vendor/openseadragon.min.js" defer></script>
+<script src="zoom.js" defer></script>
+</head>
+<body>
+<main>
+<header>
+<h1>P429 ROI 高清查看</h1>
+<a href="../#held-out" id="back">返回汇报页</a>
+</header>
+<div class="toolbar" aria-label="切片查看工具">
+<label for="case">病例</label><select id="case" disabled></select>
+<div class="group" role="group" aria-label="显示叠层">
+<button data-view="rgb" aria-pressed="true" disabled>原图</button>
+<button data-view="annotation" aria-pressed="false" disabled>人工标注</button>
+<button data-view="prediction" aria-pressed="false" disabled>P429 预测</button>
+</div>
+<div class="group" role="group" aria-label="缩放工具">
+<button id="zoom-out" type="button" aria-label="缩小" disabled>−</button>
+<button id="home" type="button" disabled>适应窗口</button>
+<button id="zoom-in" type="button" aria-label="放大" disabled>+</button>
+</div>
+</div>
+<div id="canvas" aria-label="可缩放的病理 ROI">
+<div id="scale" hidden><span id="scale-bar"></span><span id="scale-text"></span></div>
+</div>
+<p id="status" role="status">正在加载切片…</p>
+<p id="attribution">滚动或双指缩放，拖动查看细节。</p>
+</main>
+</body>
+</html>
