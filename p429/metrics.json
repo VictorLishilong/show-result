@@ -156,5 +156,8 @@
       "native_width": 7531,
       "native_height": 7027
     }
-  }
+  },
+  "negative_validation_cases": 1,
+  "held_out_test_cases": 5,
+  "held_out_test_results_in_report": false
 }
