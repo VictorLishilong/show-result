@@ -63,7 +63,7 @@ figcaption { text-align:center; margin-top:7px; font-size:14px; }
 <p class="note">使用原划分的 2,030 个验证裁块。预测以 FP32 推理、Hann 加权拼接、阈值 0.50 生成，采用单次视图推理。评估范围为裁块覆盖的完整标注 ROI。</p>
 <p><a href="metrics.json">下载汇总指标 JSON</a> · <a href="https://github.com/VictorLishilong/wsi_kidney/blob/codex/segmentation-performance/research/P429S_FINAL_AND_P431S_DECISION_2026-11-09.md">原始实验记录</a></p>
 </section>
-
+<section aria-labelledby="examples"><h2 id="examples">完整 ROI 对照</h2><p class="note"><span class="legend" aria-hidden="true"></span>橙色表示肾间质炎症。点击图片可查看原分辨率图。</p><article class='card example'><h3>验证示例 01 · 高重叠</h3><p class='metrics'>Dice 0.9187 · 精确率 0.8959 · 召回率 0.9427</p><div class='images'><figure><a href='roi/roi-01-rgb.webp' target='_blank' rel='noopener'><img src='roi/roi-01-rgb-preview.webp' width='1413' height='1440' loading='lazy' decoding='async' alt='验证示例 01，原始 ROI'></a><figcaption>原始 ROI</figcaption></figure><figure><a href='roi/roi-01-annotation.webp' target='_blank' rel='noopener'><img src='roi/roi-01-annotation-preview.webp' width='1413' height='1440' loading='lazy' decoding='async' alt='验证示例 01，人工标注'></a><figcaption>人工标注</figcaption></figure><figure><a href='roi/roi-01-prediction.webp' target='_blank' rel='noopener'><img src='roi/roi-01-prediction-preview.webp' width='1413' height='1440' loading='lazy' decoding='async' alt='验证示例 01，P429 预测'></a><figcaption>P429 预测</figcaption></figure></div></article></section>
 <section class="card" aria-labelledby="extent">
 <h2 id="extent">范围错误集中在 IFTA</h2>
 <p>IFTA 约占验证 ROI 面积的 20.1%，包含 85.3% 的误分像素和 88.8% 的漏分像素。IFTA 内 93.1% 的漏分像素来自已被模型找到一部分的病灶。</p>
